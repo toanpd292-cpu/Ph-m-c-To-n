@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
-import { Search, ShoppingBag, ChevronLeft, ChevronRight, Filter, X } from 'lucide-react';
+import { Search, ChevronLeft, ChevronRight, Filter, X, Heart, MessageCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { AnimatePresence } from 'motion/react';
 import { clsx, type ClassValue } from 'clsx';
@@ -10,7 +10,9 @@ function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-import { products } from '../data/products';
+import { products as localProducts } from '../data/products';
+import { supabase } from '../utils/supabase';
+import { useWishlist } from '../context/WishlistContext';
 
 const ProductSkeleton = () => (
   <div className="bg-white border border-slate-100 rounded-xl overflow-hidden animate-pulse">
@@ -26,22 +28,45 @@ const ProductSkeleton = () => (
 
 export default function Products() {
   const [loading, setLoading] = useState(true);
+  const [products, setProducts] = useState<any[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedAffinities, setSelectedAffinities] = useState<string[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 50000000]);
   const [sortBy, setSortBy] = useState("newest");
   const [showMobileFilters, setShowMobileFilters] = useState(false);
+  const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
+  const [notification, setNotification] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
 
   const parsePrice = (priceStr: string) => {
     return parseInt(priceStr.replace(/\./g, '').replace('đ', ''));
   };
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setLoading(false);
-    }, 1000);
-    return () => clearTimeout(timer);
+    let mounted = true;
+
+    async function load() {
+      setLoading(true);
+      try {
+        if (typeof supabase !== 'undefined') {
+          const { data } = await supabase.from('products').select('*').order('id', { ascending: false });
+          if (mounted && data && data.length > 0) {
+            setProducts(data as any[]);
+          } else if (mounted) {
+            setProducts(localProducts as any[]);
+          }
+        } else {
+          setProducts(localProducts as any[]);
+        }
+      } catch (e) {
+        setProducts(localProducts as any[]);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    load();
+    return () => { mounted = false };
   }, []);
 
   const handleSearchChange = (query: string) => {
@@ -76,6 +101,23 @@ export default function Products() {
     setTimeout(() => setLoading(false), 500);
   };
 
+  const handleWishlistToggle = (product: any) => {
+    if (isInWishlist(product.id)) {
+      removeFromWishlist(product.id);
+      setNotification({ message: `❤️ Đã xóa khỏi danh sách yêu thích`, type: 'success' });
+    } else {
+      addToWishlist({
+        id: product.id,
+        name: product.name,
+        price: parsePrice(product.price),
+        image_url: product.img,
+        addedAt: new Date().toISOString()
+      });
+      setNotification({ message: `❤️ Đã thêm vào danh sách yêu thích!`, type: 'success' });
+    }
+    setTimeout(() => setNotification(null), 2000);
+  };
+  
   const filteredProducts = products.filter(product => {
     const price = parsePrice(product.price);
     const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase());
@@ -98,6 +140,20 @@ export default function Products() {
 
   return (
     <div className="bg-white">
+      {/* Notification Toast */}
+      <AnimatePresence>
+        {notification && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="fixed top-24 left-1/2 -translate-x-1/2 z-[100] bg-white border border-slate-200 rounded-lg shadow-lg px-6 py-3 text-sm font-medium"
+          >
+            {notification.message}
+          </motion.div>
+        )}
+      </AnimatePresence>
+      
       {/* Hero Header Section */}
       <section className="relative py-20 bg-slate-50 overflow-hidden">
         <div className="absolute inset-0 opacity-5 pointer-events-none">
@@ -354,27 +410,34 @@ export default function Products() {
                     whileHover={{ y: -5 }}
                     className="group bg-white border border-slate-100 rounded-xl overflow-hidden hover:shadow-xl transition-all duration-300"
                   >
-                    <Link to={`/product/${product.id}`}>
-                      <div className="aspect-square relative overflow-hidden bg-slate-50">
-                        <img 
-                          src={product.img} 
-                          alt={product.name}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000 ease-out"
-                          referrerPolicy="no-referrer"
-                          loading="lazy"
-                          decoding="async"
-                        />
-                        <div className="absolute top-3 left-3 px-2 py-1 bg-primary/90 text-white text-[10px] font-bold uppercase rounded">Hot</div>
+                    <div className="aspect-square relative overflow-hidden bg-slate-50">
+                      <img 
+                        src={product.img} 
+                        alt={product.name}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000 ease-out"
+                        referrerPolicy="no-referrer"
+                        loading="lazy"
+                        decoding="async"
+                      />
+                      <div className="absolute top-3 left-3 px-2 py-1 bg-primary/90 text-white text-[10px] font-bold uppercase rounded">Hot</div>
+                      <button
+                        onClick={() => handleWishlistToggle(product)}
+                        className="absolute top-3 right-3 p-2 bg-white rounded-full shadow-md hover:shadow-lg transition-all"
+                      >
+                        <Heart className={`w-5 h-5 transition-colors ${isInWishlist(product.id) ? 'fill-red-500 text-red-500' : 'text-slate-400'}`} />
+                      </button>
+                    </div>
+                    <div className="p-5">
+                      <div className="inline-block px-2 py-1 bg-primary/10 text-primary text-[10px] font-bold uppercase tracking-wider rounded-md mb-3">
+                        {product.tag}
                       </div>
-                      <div className="p-5">
-                        <div className="inline-block px-2 py-1 bg-primary/10 text-primary text-[10px] font-bold uppercase tracking-wider rounded-md mb-3">
-                          {product.tag}
-                        </div>
-                        <h3 className="text-sm font-semibold mb-3 line-clamp-2">{product.name}</h3>
-                        <p className="text-primary font-bold text-lg mb-4">{product.price}</p>
-                        <button className="w-full py-2.5 bg-charcoal text-white text-xs font-bold rounded-lg group-hover:bg-primary transition-colors uppercase tracking-widest">Xem chi tiết</button>
-                      </div>
-                    </Link>
+                      <h3 className="text-sm font-semibold mb-3 line-clamp-2">{product.name}</h3>
+                      <p className="text-primary font-bold text-lg mb-4">{product.price}</p>
+                      <Link to={`/product/${product.id}`} className="w-full py-3 bg-primary text-white text-xs font-bold rounded-lg hover:bg-primary-dark transition-colors uppercase tracking-widest flex items-center justify-center gap-2">
+                        <MessageCircle className="w-4 h-4" />
+                        Tư vấn qua Zalo
+                      </Link>
+                    </div>
                   </motion.div>
                 ))
               ) : (

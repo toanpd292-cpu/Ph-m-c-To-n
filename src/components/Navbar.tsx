@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Diamond, Search, Menu, X, ShoppingBag, Phone, MessageCircle, ChevronRight } from 'lucide-react';
+import { Diamond, Search, Menu, X, Phone, MessageCircle, ChevronRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
@@ -20,6 +20,7 @@ export default function Navbar() {
     { name: 'Xem Mệnh', href: '/destiny' },
     { name: 'Về Chúng Tôi', href: '/about' },
     { name: 'Liên Hệ', href: '/contact' },
+    { name: 'Admin', href: '/admin' },
   ];
 
   return (
@@ -64,10 +65,6 @@ export default function Navbar() {
                 onClick={() => setIsSearchOpen(!isSearchOpen)}
               >
                 <Search className="w-5 h-5" />
-              </button>
-              <button className="p-2 hover:bg-slate-100 rounded-full relative transition-colors">
-                <ShoppingBag className="w-5 h-5 text-slate-600" />
-                <span className="absolute top-1 right-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[10px] text-white font-bold">0</span>
               </button>
               <Link to="/contact" className="hidden md:block bg-primary text-white px-6 py-2 text-xs font-bold uppercase tracking-widest hover:bg-primary-dark transition-all rounded-sm shadow-sm hover:shadow-md">
                 Liên Hệ
@@ -198,6 +195,7 @@ export default function Navbar() {
           href="tel:0901234567"
           whileHover={{ scale: 1.1 }}
           whileTap={{ scale: 0.9 }}
+
           className="bg-primary text-white p-4 rounded-full shadow-lg hover:shadow-primary/40 transition-all flex items-center justify-center"
           title="Gọi ngay"
         >

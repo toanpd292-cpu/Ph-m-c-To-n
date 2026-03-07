@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { WishlistProvider } from './context/WishlistContext';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
@@ -13,8 +13,7 @@ import About from './pages/About';
 import Contact from './pages/Contact';
 import Blog from './pages/Blog';
 import BlogPost from './pages/BlogPost';
-import AdminPanel from './pages/AdminPanel';
-import Admin from './pages/Admin';
+// Admin pages removed — redirect routes instead
 
 export default function App() {
   return (
@@ -33,8 +32,8 @@ export default function App() {
               <Route path="/contact" element={<Contact />} />
               <Route path="/blog" element={<Blog />} />
               <Route path="/blog/:id" element={<BlogPost />} />
-              <Route path="/admin" element={<AdminPanel />} />
-              <Route path="/admin-products" element={<Admin />} />
+              <Route path="/admin" element={<Navigate to="/" replace />} />
+              <Route path="/admin-products" element={<Navigate to="/" replace />} />
             </Routes>
           </main>
           <Footer />

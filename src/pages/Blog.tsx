@@ -1,6 +1,5 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Helmet } from 'react-helmet-async';
 import { Calendar, Clock, User, ChevronRight, ArrowRight } from 'lucide-react';
 import { supabase } from '../utils/supabase';
 
@@ -36,16 +35,7 @@ export default function Blog() {
   }, []);
 
   return (
-    <>
-      <Helmet>
-        <title>Blog | Ngọc Nhất Linh - Kiến Thức Phong Thủy</title>
-        <meta name="description" content="Khám phá các bài viết về phong thủy, ngọc quý, và kiến thức tâm linh từ Ngọc Nhất Linh." />
-        <meta property="og:title" content="Blog | Ngọc Nhất Linh" />
-        <meta property="og:description" content="Kiến thức phong thủy từ những chuyên gia hàng đầu" />
-        <meta name="keywords" content="blog, phong thủy, ngọc quý, kiến thức, tâm linh" />
-      </Helmet>
-
-      <div className="bg-white">
+    <div className="bg-white">
         {/* Hero Section */}
         <section className="relative py-20 bg-gradient-to-r from-primary/10 via-white to-primary/5 overflow-hidden">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
@@ -222,6 +212,5 @@ export default function Blog() {
           </div>
         </main>
       </div>
-    </>
-  );
-}
+      );
+    }

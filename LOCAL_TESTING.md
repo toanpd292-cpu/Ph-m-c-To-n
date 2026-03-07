@@ -44,7 +44,7 @@ Server runs at: **http://localhost:5173**
 - [ ] Image loads without errors
 
 **Navigation**
-- [ ] Navbar links work (Home, Products, Tra Cứu, Về, Liên Hệ, Admin)
+- [ ] Navbar links work (Home, Products, Tra Cứu, Về, Liên Hệ, Quản Lý (Admin), Xem Gian Hàng)
 - [ ] Responsive on mobile (hamburger menu works)
 - [ ] Sticky top behavior working
 

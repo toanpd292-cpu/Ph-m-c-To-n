@@ -1,6 +1,5 @@
 import React from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { Helmet } from 'react-helmet-async';
 import { supabase } from '../utils/supabase';
 import { generateStructuredData } from '../utils/seo';
 import { Calendar, Clock, User, ChevronRight, ArrowLeft } from 'lucide-react';
@@ -99,25 +98,6 @@ export default function BlogPost() {
 
   return (
     <>
-      <Helmet>
-        <title>{post.title} | Ngọc Nhất Linh - Blog</title>
-        <meta name="description" content={excerpt} />
-        <meta name="keywords" content="phong thủy, ngọc quý, trang sức, đá quý, kiến thức" />
-        <meta property="og:title" content={post.title} />
-        <meta property="og:description" content={excerpt} />
-        <meta property="og:image" content={post.image_url || `${baseUrl}/og-image.jpg`} />
-        <meta property="og:url" content={postUrl} />
-        <meta property="og:type" content="article" />
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content={post.title} />
-        <meta name="twitter:description" content={excerpt} />
-        <meta name="twitter:image" content={post.image_url || `${baseUrl}/og-image.jpg`} />
-        <meta name="author" content={post.author || 'Ngọc Nhất Linh'} />
-        <meta property="article:published_time" content={publishedDate} />
-        <link rel="canonical" href={postUrl} />
-        <script type="application/ld+json">{JSON.stringify(structuredData)}</script>
-      </Helmet>
-
       <article className="bg-white">
         <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           {/* Breadcrumb */}
